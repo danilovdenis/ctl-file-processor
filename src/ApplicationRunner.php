@@ -12,6 +12,11 @@ use Throwable;
  */
 class ApplicationRunner {
 
+	const COMMAND_FILE         = 'file';
+	const COMMAND_CREATE_TABLE = 'create_table';
+
+	const TYPE_OPTIONAL = '::';
+
 	/** Service  */
 	protected FileService $fileService;
 
@@ -46,26 +51,40 @@ class ApplicationRunner {
 		$opts = getopt(
 			'u,p,h',
 			[
-				'file::',
-				'create_table',
-				'dry_run',
+				static::COMMAND_FILE . static::TYPE_OPTIONAL,
+				static::COMMAND_CREATE_TABLE . static::TYPE_OPTIONAL,
+				'dry_run::',
 				'help',
 			])
 		;
 
-		if (array_key_exists('file', $opts)) {
-			if (!isset($opts['file'])) {
-				echo PHP_EOL;
-				echo "Value Not Found" . PHP_EOL;
-				echo "PLease, Set Filename" . PHP_EOL;
-				echo "Type --help to see help information" . PHP_EOL;
+		if (array_key_exists(static::COMMAND_FILE, $opts)) {
+			if (false === $opts[static::COMMAND_FILE]) {
+				$this->showNotFoundError('File Name');
 
 				return;
 			}
 
 			$this->rowData = $this->fileService->prepareData($opts['file']);
+		}
 
-			var_dump($this->rowData);
+		if (array_key_exists(static::COMMAND_CREATE_TABLE, $opts)) {
+			if (false === $opts[static::COMMAND_CREATE_TABLE]) {
+				$this->showNotFoundError('Table Name');
+
+				return;
+			}
+
+			// @todo up
+			$db = new DbService('localhost', 'user', 'password', 'db_users');
+
+			$db->createTable($opts[static::COMMAND_CREATE_TABLE],
+				[
+					'username VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Username"',
+					'surname  VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Surname"',
+					'email    VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Email"',
+				]
+			);
 		}
 
 		if (array_key_exists('help', $opts)) {
@@ -78,5 +97,17 @@ class ApplicationRunner {
 	 */
 	private function showHelp() {
 		// -- help output
+	}
+
+	/**
+	 * Output error message
+	 *
+	 * @param string $parameter Name of parameter
+	 */
+	private function showNotFoundError(string $parameter) {
+		echo PHP_EOL;
+		echo 'Value Not Found' . PHP_EOL;
+		echo 'PLease, Set ' . $parameter  . PHP_EOL;
+		echo 'Type --help to see help information' . PHP_EOL;
 	}
 }
