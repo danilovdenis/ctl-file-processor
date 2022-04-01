@@ -32,8 +32,6 @@ class FileService {
 				continue;
 			}
 
-			var_dump($rowData);
-
 			$dto          = new FileRowsDto();
 			$dto->name    = $rowData[0];
 			$dto->surname = $rowData[1];
@@ -56,15 +54,16 @@ class FileService {
 	 * @return FileRowsDto|null
 	 */
 	public function prepareRow(FileRowsDto $fileRow): ?FileRowsDto {
-		$fileRow->name    = ucfirst(strtolower($fileRow->name));
-		$fileRow->surname = ucfirst(strtolower($fileRow->surname));
-
-		// @todo add regexp ??
+		// @todo need recheck - mo'connor@cat.net.nz?
 		if (false === filter_var($fileRow->email, FILTER_VALIDATE_EMAIL)) {
-			echo 'Email ' . $fileRow->email . ' is not valid';
+			echo 'Warning: Email ' . $fileRow->email . ' is not valid' . PHP_EOL;
 
 			return null;
 		}
+
+		$fileRow->name    = ucfirst(strtolower($fileRow->name));
+		$fileRow->surname = ucfirst(strtolower($fileRow->surname));
+		$fileRow->email   = strtolower($fileRow->email);
 
 		return $fileRow;
 	}

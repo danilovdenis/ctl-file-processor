@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace src\service;
 
+use dto\service\FileRowsDto;
 use mysqli;
 use Throwable;
 
@@ -38,7 +39,7 @@ class DbService {
 	 * Batch insert
 	 *
 	 */
-	public function batchInsert($data) {
+	public function batchInsert(FileRowsDto $data) {
 		$this->connection->begin_transaction();
 
 		try {
@@ -72,7 +73,8 @@ class DbService {
 		try {
 			$this->connection->query('
 				CREATE TABLE IF NOT EXISTS ' . $tableName . ' (
-					' . $columnsString . '
+					' . $columnsString . ',
+					UNIQUE KEY unique_email (email)
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 			');
 		}
