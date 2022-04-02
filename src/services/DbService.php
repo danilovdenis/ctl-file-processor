@@ -58,7 +58,7 @@ class DbService {
 		$this->connection::getInstance()->query($sql);
 
 		if ('' !== $this->connection::getInstance()->error) {
-			echo 'Insert Error: ' . $this->connection::getInstance()->error;
+			echo 'INSERT ERROR: ' . $this->connection::getInstance()->error;
 
 			throw new Exception();
 		}
@@ -96,5 +96,20 @@ class DbService {
 	 */
 	public function dropTable(string $tableName) {
 		$this->connection::getInstance()->query('DROP TABLE IF EXISTS ' . $tableName);
+	}
+
+	/**
+	 * Drop the table.
+	 *
+	 * @param string $tableName Name of table
+	 */
+	public function truncateTable(string $tableName) {
+		$this->connection::getInstance()->query('TRUNCATE TABLE ' . $tableName);
+
+		if ('' !== $this->connection::getInstance()->error) {
+			echo 'TRUNCATE ERROR: ' . $this->connection::getInstance()->error;
+
+			throw new Exception();
+		}
 	}
 }

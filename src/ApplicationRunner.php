@@ -14,11 +14,16 @@ use Throwable;
  */
 class ApplicationRunner {
 
-	const COMMAND_FILE         = 'file';
-	const COMMAND_CREATE_TABLE = 'create_table';
-	const COMMAND_DROP_TABLE   = 'drop_table';
-	const COMMAND_DRY_RUN      = 'dry_run';
-	const COMMAND_HELP         = 'help';
+	const COMMAND_FILE           = 'file';
+	const COMMAND_CREATE_TABLE   = 'create_table';
+	const COMMAND_DROP_TABLE     = 'drop_table';
+	const COMMAND_DRY_RUN        = 'dry_run';
+	const COMMAND_HELP           = 'help';
+	const COMMAND_TRUNCATE_TABLE = 'truncate_table';
+
+	const COMMAND_USER     = 'u';
+	const COMMAND_PASSWORD = 'p';
+	const COMMAND_HOST     = 'h';
 
 	const TYPE_OPTIONAL = '::';
 
@@ -33,6 +38,11 @@ class ApplicationRunner {
 
 	/** Commands */
 	protected array $opts;
+
+	protected $fileName;
+	protected $user;
+	protected $password;
+	protected $host;
 
 	/**
 	 * @param FileService $fileService
@@ -50,6 +60,7 @@ class ApplicationRunner {
 	 */
 	public function run() {
 		try {
+			$this->initOpts();
 			$this->processCommand();
 		}
 		catch (Throwable $e) {
@@ -58,20 +69,37 @@ class ApplicationRunner {
 	}
 
 	/**
-	 * Processed set command
+	 * Initialization options.
 	 */
-	protected function processCommand() {
+	protected function initOpts() {
+		$shortOpts = implode('', [
+			static::COMMAND_USER . static::TYPE_OPTIONAL,
+			static::COMMAND_PASSWORD . static::TYPE_OPTIONAL,
+			static::COMMAND_HOST . static::TYPE_OPTIONAL,
+		]);
+
 		$this->opts = getopt(
-			'u,p,h',
+			$shortOpts,
 			[
 				static::COMMAND_FILE . static::TYPE_OPTIONAL,
 				static::COMMAND_CREATE_TABLE . static::TYPE_OPTIONAL,
 				static::COMMAND_DROP_TABLE . static::TYPE_OPTIONAL,
+				static::COMMAND_TRUNCATE_TABLE . static::TYPE_OPTIONAL,
 				static::COMMAND_DRY_RUN . static::TYPE_OPTIONAL,
 				static::COMMAND_HELP,
 			]);
+	}
 
+	/**
+	 * Processed set command
+	 */
+	protected function processCommand() {
 		try {
+			$this->fileName = $this->opts[static::COMMAND_FILE]     ?? null;
+			$this->user     = $this->opts[static::COMMAND_USER]     ?? null;
+			$this->password = $this->opts[static::COMMAND_PASSWORD] ?? null;
+			$this->host     = $this->opts[static::COMMAND_HOST]     ?? null;
+
 			if (array_key_exists(static::COMMAND_FILE, $this->opts) && !array_key_exists(static::COMMAND_DRY_RUN, $this->opts)) {
 				$this->actionFile();
 			}
@@ -86,6 +114,10 @@ class ApplicationRunner {
 
 			if (array_key_exists(static::COMMAND_DROP_TABLE, $this->opts)) {
 				$this->actionDropTable();
+			}
+
+			if (array_key_exists(static::COMMAND_TRUNCATE_TABLE, $this->opts)) {
+				$this->actionTruncateTable();
 			}
 		}
 		catch (Throwable $e) {
@@ -103,13 +135,31 @@ class ApplicationRunner {
 	 * @throws Exception
 	 */
 	private function actionFile() {
-		if (false === $this->opts[static::COMMAND_FILE]) {
+		if (!$this->fileName) {
 			$this->showNotFoundError('File Name');
 
 			throw new Exception();
 		}
 
-		$this->rowsData = $this->fileService->prepareData($this->opts['file']);
+		if (!$this->user) {
+			$this->showNotFoundError('Username');
+
+			throw new Exception();
+		}
+
+		if (!$this->password) {
+			$this->showNotFoundError('Password');
+
+			throw new Exception();
+		}
+
+		if (!$this->host) {
+			$this->showNotFoundError('Host');
+
+			throw new Exception();
+		}
+
+		$this->rowsData = $this->fileService->prepareData($this->opts[static::COMMAND_FILE]);
 
 		if (0 === count($this->rowsData)) {
 			// @todo
@@ -118,7 +168,8 @@ class ApplicationRunner {
 			throw new Exception();
 		}
 
-		$this->dbService->connect(new DBConnection('localhost', 'user', 'password', 'db_users'));
+		// @todo db opt?
+		$this->dbService->connect(new DBConnection($this->host, $this->user, $this->password, 'db_users'));
 
 		$this->dbService->batchInsertUsers($this->rowsData);
 	}
@@ -135,8 +186,7 @@ class ApplicationRunner {
 			throw new Exception();
 		}
 
-		// @todo at params
-		$this->dbService->connect(new DBConnection('localhost', 'user', 'password', 'db_users'));
+		$this->dbService->connect(new DBConnection($this->host, $this->user, $this->password, 'db_users'));
 
 		$this->dbService->dropTable($this->opts[static::COMMAND_DROP_TABLE]);
 	}
@@ -163,6 +213,23 @@ class ApplicationRunner {
 	}
 
 	/**
+	 * Truncate table action
+	 *
+	 * @throws Exception
+	 */
+	private function actionTruncateTable() {
+		if (false === $this->opts[static::COMMAND_TRUNCATE_TABLE]) {
+			$this->showNotFoundError('Table Name');
+
+			throw new Exception();
+		}
+
+		$this->dbService->connect(new DBConnection($this->host, $this->user, $this->password, 'db_users'));
+
+		$this->dbService->truncateTable($this->opts[static::COMMAND_TRUNCATE_TABLE]);
+	}
+
+	/**
 	 * Parse file without insert into database.
 	 *
 	 * @throws Exception
@@ -174,7 +241,7 @@ class ApplicationRunner {
 			throw new Exception();
 		}
 
-		$this->rowsData = $this->fileService->prepareData($this->opts['file']);
+		$this->rowsData = $this->fileService->prepareData($this->opts[static::COMMAND_FILE]);
 
 		echo PHP_EOL;
 		echo 'DATA PREPARED:' . PHP_EOL;
