@@ -39,10 +39,16 @@ class ApplicationRunner {
 	/** Commands */
 	protected array $opts;
 
+	/** @var string|null|false $fileName */
 	protected $fileName;
+	/** @var string|null|false $user */
 	protected $user;
+	/** @var string|null|false $password */
 	protected $password;
+	/** @var string|null|false $host */
 	protected $host;
+	/** @var string|null|false $tableName */
+	protected $tableName;
 
 	/**
 	 * @param FileService $fileService
@@ -109,14 +115,17 @@ class ApplicationRunner {
 			}
 
 			if (array_key_exists(static::COMMAND_CREATE_TABLE, $this->opts)) {
+				$this->tableName = $this->opts[static::COMMAND_CREATE_TABLE] ?? null;
 				$this->actionCreateTable();
 			}
 
 			if (array_key_exists(static::COMMAND_DROP_TABLE, $this->opts)) {
+				$this->tableName = $this->opts[static::COMMAND_DROP_TABLE] ?? null;
 				$this->actionDropTable();
 			}
 
 			if (array_key_exists(static::COMMAND_TRUNCATE_TABLE, $this->opts)) {
+				$this->tableName = $this->opts[static::COMMAND_TRUNCATE_TABLE] ?? null;
 				$this->actionTruncateTable();
 			}
 		}
@@ -159,7 +168,7 @@ class ApplicationRunner {
 			throw new Exception();
 		}
 
-		$this->rowsData = $this->fileService->prepareData($this->opts[static::COMMAND_FILE]);
+		$this->rowsData = $this->fileService->prepareData($this->fileName);
 
 		if (0 === count($this->rowsData)) {
 			// @todo
@@ -180,7 +189,7 @@ class ApplicationRunner {
 	 * @throws Exception
 	 */
 	private function actionDropTable() {
-		if (false === $this->opts[static::COMMAND_DROP_TABLE]) {
+		if (!$this->tableName) {
 			$this->showNotFoundError('Table Name');
 
 			throw new Exception();
@@ -188,7 +197,7 @@ class ApplicationRunner {
 
 		$this->dbService->connect(new DBConnection($this->host, $this->user, $this->password, 'db_users'));
 
-		$this->dbService->dropTable($this->opts[static::COMMAND_DROP_TABLE]);
+		$this->dbService->dropTable($this->tableName);
 	}
 
 	/**
@@ -197,13 +206,15 @@ class ApplicationRunner {
 	 * @throws Exception
 	 */
 	private function actionCreateTable() {
-		if (false === $this->opts[static::COMMAND_CREATE_TABLE]) {
+		if (!$this->tableName) {
 			$this->showNotFoundError('Table Name');
 
 			throw new Exception();
 		}
 
-		$this->dbService->createTable($this->opts[static::COMMAND_CREATE_TABLE],
+		$this->dbService->connect(new DBConnection($this->host, $this->user, $this->password, 'db_users'));
+
+		$this->dbService->createTable($this->tableName,
 			[
 				'username VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Username"',
 				'surname  VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Surname"',
@@ -218,7 +229,7 @@ class ApplicationRunner {
 	 * @throws Exception
 	 */
 	private function actionTruncateTable() {
-		if (false === $this->opts[static::COMMAND_TRUNCATE_TABLE]) {
+		if (!$this->tableName) {
 			$this->showNotFoundError('Table Name');
 
 			throw new Exception();
@@ -226,7 +237,7 @@ class ApplicationRunner {
 
 		$this->dbService->connect(new DBConnection($this->host, $this->user, $this->password, 'db_users'));
 
-		$this->dbService->truncateTable($this->opts[static::COMMAND_TRUNCATE_TABLE]);
+		$this->dbService->truncateTable($this->tableName);
 	}
 
 	/**
@@ -235,13 +246,13 @@ class ApplicationRunner {
 	 * @throws Exception
 	 */
 	private function actionDryRun() {
-		if (false === $this->opts[static::COMMAND_FILE]) {
+		if (!$this->fileName) {
 			$this->showNotFoundError('File Name');
 
 			throw new Exception();
 		}
 
-		$this->rowsData = $this->fileService->prepareData($this->opts[static::COMMAND_FILE]);
+		$this->rowsData = $this->fileService->prepareData($this->fileName);
 
 		echo PHP_EOL;
 		echo 'DATA PREPARED:' . PHP_EOL;
