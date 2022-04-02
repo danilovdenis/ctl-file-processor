@@ -108,25 +108,35 @@ class ApplicationRunner {
 
 			if (array_key_exists(static::COMMAND_FILE, $this->opts) && !array_key_exists(static::COMMAND_DRY_RUN, $this->opts)) {
 				$this->actionFile();
+
+				return;
 			}
 
 			if (array_key_exists(static::COMMAND_FILE, $this->opts) && array_key_exists(static::COMMAND_DRY_RUN, $this->opts)) {
 				$this->actionDryRun();
+
+				return;
 			}
 
 			if (array_key_exists(static::COMMAND_CREATE_TABLE, $this->opts)) {
 				$this->tableName = $this->opts[static::COMMAND_CREATE_TABLE] ?? null;
 				$this->actionCreateTable();
+
+				return;
 			}
 
 			if (array_key_exists(static::COMMAND_DROP_TABLE, $this->opts)) {
 				$this->tableName = $this->opts[static::COMMAND_DROP_TABLE] ?? null;
 				$this->actionDropTable();
+
+				return;
 			}
 
 			if (array_key_exists(static::COMMAND_TRUNCATE_TABLE, $this->opts)) {
 				$this->tableName = $this->opts[static::COMMAND_TRUNCATE_TABLE] ?? null;
 				$this->actionTruncateTable();
+
+				return;
 			}
 		}
 		catch (Throwable $e) {

@@ -1,0 +1,17 @@
+{
+	"name": "vendor_name/ctl-file-processor",
+	"description": "File/DB Processing",
+	"minimum-stability": "stable",
+	"license": "proprietary",
+	"authors": [
+		{
+			"name": "densdanilov",
+			"email": "email@example.com"
+		}
+	],
+	"require": {
+	},
+	"require-dev": {
+		"phpunit/phpunit": "9.5.16"
+	}
+}

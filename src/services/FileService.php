@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace src\service;
 
 use dto\service\UsersDto;
+use src\components\validators\EmailValidator;
 
 /**
  * Service to prepare file
@@ -54,7 +55,7 @@ class FileService {
 	 * @return UsersDto|null
 	 */
 	public function prepareRow(UsersDto $fileRow): ?UsersDto {
-		if (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", $fileRow->email)) {
+		if (false === (EmailValidator::validate($fileRow->email))) {
 			echo 'Warning: Email ' . $fileRow->email . ' is not valid' . PHP_EOL;
 
 			return null;
