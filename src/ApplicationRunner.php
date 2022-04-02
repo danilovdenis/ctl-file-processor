@@ -134,7 +134,7 @@ class ApplicationRunner {
 		}
 
 		if (array_key_exists('help', $this->opts)) {
-			$this->showHelp();
+			$this->actionHelp();
 		}
 	}
 
@@ -264,14 +264,26 @@ class ApplicationRunner {
 	}
 
 	/**
-	 *
+	 * Help information.
+	 * Output information block into STDOUT.
 	 */
-	private function showHelp() {
-		// -- help output
+	private function actionHelp() {
+		echo PHP_EOL;
+		echo 'USAGE' . PHP_EOL;
+		echo PHP_EOL;
+		echo '--file           [File name]        Parsing file and insert into table' . PHP_EOL;
+		echo '--create_table   [Table name]       Create table in database' . PHP_EOL;
+		echo '--drop_table     [Table name]       Drop table in database' . PHP_EOL;
+		echo '--truncate_table [Table name]       Truncate table in database' . PHP_EOL;
+		echo '--dry_run                           Parsing file and prepare to processing without insert' . PHP_EOL;
+		echo '-u               [User name]        Create table in database' . PHP_EOL;
+		echo '-p               [Password]         Create table in database' . PHP_EOL;
+		echo '-h               [host name or IP]  Create table in database' . PHP_EOL;
+		echo PHP_EOL;
 	}
 
 	/**
-	 * Output error message
+	 * Output error message.
 	 *
 	 * @param string $parameter Name of parameter
 	 */
