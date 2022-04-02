@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace src\service;
 
-use dto\service\FileRowsDto;
+use dto\service\UsersDto;
 use Exception;
+use src\components\DBConnection;
 use Throwable;
 
 /**
@@ -21,10 +22,13 @@ class ApplicationRunner {
 
 	const TYPE_OPTIONAL = '::';
 
-	/** Service  */
+	/** File service  */
 	protected FileService $fileService;
 
-	/** @var FileRowsDto[] */
+	/** DB service  */
+	protected DbService $dbService;
+
+	/** @var UsersDto[] */
 	protected array $rowsData;
 
 	/** Commands */
@@ -32,9 +36,11 @@ class ApplicationRunner {
 
 	/**
 	 * @param FileService $fileService
+	 * @param DbService   $dbService
 	 */
-	public function __construct(FileService $fileService) {
+	public function __construct(FileService $fileService, DbService $dbService) {
 		$this->fileService = $fileService;
+		$this->dbService   = $dbService;
 	}
 
 	/**
@@ -66,8 +72,12 @@ class ApplicationRunner {
 			]);
 
 		try {
-			if (array_key_exists(static::COMMAND_FILE, $this->opts)) {
+			if (array_key_exists(static::COMMAND_FILE, $this->opts) && !array_key_exists(static::COMMAND_DRY_RUN, $this->opts)) {
 				$this->actionFile();
+			}
+
+			if (array_key_exists(static::COMMAND_FILE, $this->opts) && array_key_exists(static::COMMAND_DRY_RUN, $this->opts)) {
+				$this->actionDryRun();
 			}
 
 			if (array_key_exists(static::COMMAND_CREATE_TABLE, $this->opts)) {
@@ -101,13 +111,16 @@ class ApplicationRunner {
 
 		$this->rowsData = $this->fileService->prepareData($this->opts['file']);
 
-		echo PHP_EOL;
-		echo 'DATA PREPARED:' . PHP_EOL;
-		echo '---------------' . PHP_EOL;
-		foreach ($this->rowsData as $key => $row) {
-			echo $key . '. ' . 'USERNAME: ' . $row->name . ' | SURNAME: ' . $row->surname . ' | EMAIL: ' . $row->email . PHP_EOL;
+		if (0 === count($this->rowsData)) {
+			// @todo
+			echo "No users" . PHP_EOL;
+
+			throw new Exception();
 		}
-		echo '---------------' . PHP_EOL;
+
+		$this->dbService->connect(new DBConnection('localhost', 'user', 'password', 'db_users'));
+
+		$this->dbService->batchInsertUsers($this->rowsData);
 	}
 
 	/**
@@ -123,9 +136,9 @@ class ApplicationRunner {
 		}
 
 		// @todo at params
-		$db = new DbService('localhost', 'user', 'password', 'db_users');
+		$this->dbService->connect(new DBConnection('localhost', 'user', 'password', 'db_users'));
 
-		$db->dropTable($this->opts[static::COMMAND_DROP_TABLE]);
+		$this->dbService->dropTable($this->opts[static::COMMAND_DROP_TABLE]);
 	}
 
 	/**
@@ -140,16 +153,36 @@ class ApplicationRunner {
 			throw new Exception();
 		}
 
-		// @todo at params
-		$db = new DbService('localhost', 'user', 'password', 'db_users');
-
-		$db->createTable($this->opts[static::COMMAND_CREATE_TABLE],
+		$this->dbService->createTable($this->opts[static::COMMAND_CREATE_TABLE],
 			[
 				'username VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Username"',
 				'surname  VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Surname"',
 				'email    VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Email"',
 			]
 		);
+	}
+
+	/**
+	 * Parse file without insert into database.
+	 *
+	 * @throws Exception
+	 */
+	private function actionDryRun() {
+		if (false === $this->opts[static::COMMAND_FILE]) {
+			$this->showNotFoundError('File Name');
+
+			throw new Exception();
+		}
+
+		$this->rowsData = $this->fileService->prepareData($this->opts['file']);
+
+		echo PHP_EOL;
+		echo 'DATA PREPARED:' . PHP_EOL;
+		echo '---------------' . PHP_EOL;
+		foreach ($this->rowsData as $key => $row) {
+			echo $key . '. ' . 'USERNAME: ' . $row->name . ' | SURNAME: ' . $row->surname . ' | EMAIL: ' . $row->email . PHP_EOL;
+		}
+		echo '---------------' . PHP_EOL;
 	}
 
 	/**

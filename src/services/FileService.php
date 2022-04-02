@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace src\service;
 
-use dto\service\FileRowsDto;
+use dto\service\UsersDto;
 
 /**
  * Service to prepare file
@@ -16,7 +16,7 @@ class FileService {
 	 *
 	 * @param string $filename Name of file
 	 *
-	 * @return FileRowsDto[]
+	 * @return UsersDto[]
 	 */
 	public function prepareData(string $filename): array {
 		$fileContent = file_get_contents($filename);
@@ -32,7 +32,7 @@ class FileService {
 				continue;
 			}
 
-			$dto          = new FileRowsDto();
+			$dto          = new UsersDto();
 			$dto->name    = $rowData[0];
 			$dto->surname = $rowData[1];
 			$dto->email   = $rowData[2];
@@ -49,21 +49,20 @@ class FileService {
 	/**
 	 * Prepare and validate row
 	 *
-	 * @param FileRowsDto $fileRow File row model
+	 * @param UsersDto $fileRow File row model
 	 *
-	 * @return FileRowsDto|null
+	 * @return UsersDto|null
 	 */
-	public function prepareRow(FileRowsDto $fileRow): ?FileRowsDto {
-		// @todo need recheck - mo'connor@cat.net.nz?
-		if (false === filter_var($fileRow->email, FILTER_VALIDATE_EMAIL)) {
+	public function prepareRow(UsersDto $fileRow): ?UsersDto {
+		if (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", $fileRow->email)) {
 			echo 'Warning: Email ' . $fileRow->email . ' is not valid' . PHP_EOL;
 
 			return null;
 		}
 
-		$fileRow->name    = ucfirst(strtolower($fileRow->name));
-		$fileRow->surname = ucfirst(strtolower($fileRow->surname));
-		$fileRow->email   = strtolower($fileRow->email);
+		$fileRow->name    = ucfirst(strtolower(trim($fileRow->name)));
+		$fileRow->surname = ucfirst(strtolower(trim($fileRow->surname)));
+		$fileRow->email   = strtolower(trim($fileRow->email));
 
 		return $fileRow;
 	}

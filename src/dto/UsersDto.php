@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace dto\service;
 
-class FileRowsDto {
+class UsersDto {
 
 	/** Username  */
 	public string $name;

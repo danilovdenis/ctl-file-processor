@@ -4,65 +4,70 @@ declare(strict_types=1);
 
 namespace src\service;
 
-use dto\service\FileRowsDto;
-use mysqli;
+use dto\service\UsersDto;
+use Exception;
+use src\components\DBConnection;
 use Throwable;
 
 /**
- * Service to work with database
+ * Service to work with database.
  */
 class DbService {
 
 	/** Connection */
-	public mysqli $connection;
+	public DBConnection $connection;
 
 	/**
-	 * @param string $host     Host name or ip address
-	 * @param string $user     Username
-	 * @param string $password Password
-	 * @param string $dbname   Database name
+	 * @param DBConnection $connection
 	 */
-	public function __construct(string $host, string $user, string $password, string $dbname) {
-		try {
-			$this->connection = new mysqli($host, $user, $password, $dbname);
-		}
-		catch (Throwable $e) {
-			echo PHP_EOL;
-			echo 'Connection Error: ' . $e;
-		}
+	public function connect(DBConnection $connection) {
+		$this->connection = $connection;
 	}
 
 	/**
-	 * @param $data
+	 * Batch insert users into db.
 	 *
-	 * @todo
-	 * Batch insert
-	 *
+	 * @param UsersDto[] $data
 	 */
-	public function batchInsert(FileRowsDto $data) {
-		$this->connection->begin_transaction();
+	public function batchInsertUsers(array $data) {
+		$this->connection::getInstance()->begin_transaction();
 
 		try {
-			$this->insert();
+			foreach ($data as $row) {
+				$this->insertUser($row);
+			}
 		}
 		catch (Throwable $e) {
-			$this->connection->rollback();
+			$this->connection::getInstance()->rollback();
 
-			echo $e . PHP_EOL;
+			echo $e->getMessage() . PHP_EOL;
 		}
 
-		$this->connection->commit();
+		$this->connection::getInstance()->commit();
 	}
 
 	/**
-	 * @todo
+	 * Insert user data into table 'users'.
+	 *
+	 * @param UsersDto $user
+	 *
+	 * @return int
 	 */
-	public function insert() {
-		// insert operation
+	public function insertUser(UsersDto $user): int {
+		$sql = 'INSERT INTO test(username, surname, email) VALUES ("' . $user->name . '", "' . $user->surname . '", "' . $user->email . '");';
+		$this->connection::getInstance()->query($sql);
+
+		if ('' !== $this->connection::getInstance()->error) {
+			echo 'Insert Error: ' . $this->connection::getInstance()->error;
+
+			throw new Exception();
+		}
+
+		return $this->connection::getInstance()->insert_id;
 	}
 
 	/**
-	 * Create table in database
+	 * Create table in database.
 	 *
 	 * @param string $tableName
 	 * @param array  $columns
@@ -71,7 +76,8 @@ class DbService {
 		$columnsString = implode(',', $columns);
 
 		try {
-			$this->connection->query('
+			//@todo pass key
+			$this->connection::getInstance()->query('
 				CREATE TABLE IF NOT EXISTS ' . $tableName . ' (
 					' . $columnsString . ',
 					UNIQUE KEY unique_email (email)
@@ -84,11 +90,11 @@ class DbService {
 	}
 
 	/**
-	 * Drop the table
+	 * Drop the table.
 	 *
-	 * @param string $tableName
+	 * @param string $tableName Name of table
 	 */
 	public function dropTable(string $tableName) {
-		$this->connection->query('DROP TABLE IF EXISTS ' . $tableName);
+		$this->connection::getInstance()->query('DROP TABLE IF EXISTS ' . $tableName);
 	}
 }
