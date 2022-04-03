@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace common\service;
 
+use common\components\message\Message;
 use dto\service\UsersDto;
 use common\components\validators\EmailValidator;
 
@@ -23,7 +24,7 @@ class FileService {
 		$fileContent = file_get_contents($filename);
 
 		if (!$fileContent) {
-			echo 'WARNING: File not found ' . PHP_EOL;
+			Message::output('File not found', Message::CODE_WARNING);
 
 			return [];
 		}
@@ -39,7 +40,7 @@ class FileService {
 			}
 
 			if (3 !== count($rowData)) {
-				echo 'WARNING: Data is not full ' . $row . PHP_EOL;
+				Message::output('Data is not full', Message::CODE_WARNING);
 
 				continue;
 			}
@@ -67,7 +68,7 @@ class FileService {
 	 */
 	public function prepareRow(UsersDto $fileRow): ?UsersDto {
 		if (false === (EmailValidator::validate($fileRow->email))) {
-			echo 'WARNING: Email ' . $fileRow->email . ' is not valid' . PHP_EOL;
+			Message::output('Email ' . $fileRow->email . ' is not valid', Message::CODE_WARNING);
 
 			return null;
 		}

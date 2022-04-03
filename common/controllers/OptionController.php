@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace common\controller;
 
+use common\components\message\Message;
 use dto\service\ConfigDto;
 use Exception;
 use common\components\DBConnection;
 use common\service\DbService;
 use common\service\FileService;
+use Throwable;
 
 /**
  * Options controller.
@@ -45,27 +47,21 @@ class OptionController {
 	 *
 	 * @param string|false|null $fileName
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	public function actionFile($fileName) {
 		if (!$fileName) {
-			$this->showNotFoundError('File Name');
-
-			throw new Exception();
+			throw new Exception($this->getNotFoundError('File Name'));
 		}
 
 		if (!$this->hasDbParameters()) {
-			$this->showMissingConnectionError();
-
-			throw new Exception();
+			throw new Exception($this->getMissingConnectionError());
 		}
 
 		$data = $this->fileService->prepareData($fileName);
 
 		if (0 === count($data)) {
-			echo 'WARNING: No users to upload' . PHP_EOL;
-
-			throw new Exception();
+			throw new Exception('No users to upload', 1);
 		}
 
 		$this->dbService->connect(new DBConnection(
@@ -77,7 +73,7 @@ class OptionController {
 
 		$this->dbService->batchInsertUsers($data);
 
-		echo "File data uploaded" . PHP_EOL;
+		Message::output('File data uploaded', Message::CODE_INFO);
 	}
 
 	/**
@@ -85,19 +81,15 @@ class OptionController {
 	 *
 	 * @param string|false|null $tableName
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	public function actionDropTable($tableName) {
 		if (!$tableName) {
-			$this->showNotFoundError('Table Name');
-
-			throw new Exception();
+			throw new Exception($this->getNotFoundError('Table Name'));
 		}
 
 		if (!$this->hasDbParameters()) {
-			$this->showMissingConnectionError();
-
-			throw new Exception();
+			throw new Exception($this->getMissingConnectionError());
 		}
 
 		$this->dbService->connect(new DBConnection(
@@ -115,19 +107,15 @@ class OptionController {
 	 *
 	 * @param string|false|null $tableName
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	public function actionCreateTable(?string $tableName) {
 		if (!$tableName) {
-			$this->showNotFoundError('Table Name');
-
-			throw new Exception();
+			throw new Exception($this->getNotFoundError('Table Name'));
 		}
 
 		if (!$this->hasDbParameters()) {
-			$this->showMissingConnectionError();
-
-			throw new Exception();
+			throw new Exception($this->getMissingConnectionError());
 		}
 
 		$this->dbService->connect(new DBConnection(
@@ -152,19 +140,15 @@ class OptionController {
 	 *
 	  @param string|false|null $tableName
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	public function actionTruncateTable(?string $tableName) {
 		if (!$tableName) {
-			$this->showNotFoundError('Table Name');
-
-			throw new Exception();
+			throw new Exception($this->getNotFoundError('Table Name'));
 		}
 
 		if (!$this->hasDbParameters()) {
-			$this->showMissingConnectionError();
-
-			throw new Exception();
+			throw new Exception($this->getMissingConnectionError());
 		}
 
 		$this->dbService->connect(new DBConnection($this->config->host, $this->config->user, $this->config->password, $this->config->dbName));
@@ -177,24 +161,21 @@ class OptionController {
 	 *
 	 * @param string|false|null $filename
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	public function actionDryRun($filename) {
 		if (!$filename) {
-			$this->showNotFoundError('File Name');
-
-			throw new Exception();
+			throw new Exception($this->getNotFoundError('File Name'));
 		}
 
 		$data = $this->fileService->prepareData($filename);
 
-		echo PHP_EOL;
-		echo 'DATA PREPARED:' . PHP_EOL;
-		echo '---------------' . PHP_EOL;
+		Message::output('DATA PREPARED:', Message::CODE_INFO);
+		Message::output('---------------', Message::CODE_INFO);
 		foreach ($data as $key => $row) {
-			echo $key . '. ' . 'USERNAME: ' . $row->name . ' | SURNAME: ' . $row->surname . ' | EMAIL: ' . $row->email . PHP_EOL;
+			Message::output($key . '. ' . 'USERNAME: ' . $row->name . ' | SURNAME: ' . $row->surname . ' | EMAIL: ' . $row->email, Message::CODE_INFO);
 		}
-		echo '---------------' . PHP_EOL;
+		Message::output('---------------', Message::CODE_INFO);
 	}
 
 	/**
@@ -224,22 +205,28 @@ class OptionController {
 	 * Output error message.
 	 *
 	 * @param string $parameter Name of parameter
+	 *
+	 * @return string
 	 */
-	private function showNotFoundError(string $parameter) {
-		echo PHP_EOL;
-		echo 'Value Not Found' . PHP_EOL;
-		echo 'PLease, Set ' . $parameter . PHP_EOL;
-		echo 'Type --help to see help information' . PHP_EOL;
+	private function getNotFoundError(string $parameter): string {
+		return implode(PHP_EOL, [
+			'Value Not Found',
+			'PLease, Set ' . $parameter,
+			'Type --help to see help information'
+		]);
 	}
 
 	/**
 	 * Output missing error message.
+	 *
+	 * @return string
 	 */
-	private function showMissingConnectionError() {
-		echo PHP_EOL;
-		echo 'Missing required connection parameters.' . PHP_EOL;
-		echo 'PLease, Set -u -p -h -d.'  . PHP_EOL;
-		echo 'Type --help to see help information.' . PHP_EOL;
+	private function getMissingConnectionError(): string {
+		return implode(PHP_EOL, [
+			'Missing required connection parameters.',
+			'PLease, Set -u -p -h -d.',
+			'Type --help to see help information.'
+		]);
 	}
 
 	/**

@@ -6,6 +6,7 @@ namespace common\components;
 
 use Exception;
 use mysqli;
+use Throwable;
 
 /**
  * Db Connection class.
@@ -28,6 +29,8 @@ class DBConnection {
 	 * @param string $user     Username
 	 * @param string $password Password
 	 * @param string $dbname   Database name
+	 *
+	 * @throws Throwable
 	 */
 	public function __construct(string $host, string $user, string $password, string $dbname) {
 		static::$host     = $host;
@@ -38,7 +41,7 @@ class DBConnection {
 		static::$connection = new mysqli(static::$host, static::$user, static::$password, static::$dbname);
 
 		if (0 !== static::$connection->connect_errno) {
-			throw new Exception('CONNECTION ERROR: ' . static::$connection->connect_error);
+			throw new Exception(static::$connection->connect_error);
 		}
 	}
 
@@ -53,6 +56,7 @@ class DBConnection {
 	 * Return DB connection.
 	 *
 	 * @return mysqli
+	 * @throws Throwable
 	 */
 	public static function getInstance(): mysqli {
 		if (null === static::$connection) {

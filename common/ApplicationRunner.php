@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace common\service;
 
+use common\components\message\Message;
 use dto\service\ConfigDto;
 use common\controller\OptionController;
+use Exception;
 use Throwable;
 
 /**
@@ -51,7 +53,12 @@ class ApplicationRunner {
 			$this->processCommand();
 		}
 		catch (Throwable $e) {
-			echo $e->getMessage() . PHP_EOL;
+			if (1 === $e->getCode()) {
+				Message::output($e->getMessage(), Message::CODE_WARNING);
+			}
+			else {
+				Message::output($e->getMessage(), Message::CODE_ERROR);
+			}
 		}
 	}
 
@@ -89,6 +96,8 @@ class ApplicationRunner {
 
 	/**
 	 * Processed set command.
+	 *
+	 * @throws Throwable
 	 */
 	protected function processCommand() {
 		if (array_key_exists(static::COMMAND_HELP, $this->opts)) {
@@ -129,7 +138,7 @@ class ApplicationRunner {
 			}
 		}
 		catch (Throwable $e) {
-			echo $e->getMessage() . PHP_EOL;
+			throw new Exception($e->getMessage(), $e->getCode());
 		}
 	}
 }

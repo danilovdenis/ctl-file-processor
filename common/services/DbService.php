@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace common\service;
 
+use common\components\message\Message;
 use dto\service\UsersDto;
 use Exception;
 use common\components\DBConnection;
@@ -29,7 +30,7 @@ class DbService {
 	 *
 	 * @param UsersDto[] $data
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	public function batchInsertUsers(array $data) {
 		$this->connection::getInstance()->begin_transaction();
@@ -47,7 +48,7 @@ class DbService {
 
 		$this->connection::getInstance()->commit();
 
-		echo 'Inserted ' . count($data) . ' rows.' . PHP_EOL;
+		Message::output('Inserted ' . count($data) . ' rows.', Message::CODE_INFO);
 	}
 
 	/**
@@ -56,16 +57,14 @@ class DbService {
 	 * @param UsersDto $user
 	 *
 	 * @return int
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	public function insertUser(UsersDto $user): int {
 		$sql = 'INSERT INTO test(username, surname, email) VALUES ("' . $user->name . '", "' . $user->surname . '", "' . $user->email . '");';
 		$this->connection::getInstance()->query($sql);
 
 		if ('' !== $this->connection::getInstance()->error) {
-			echo 'INSERT ERROR: ' . $this->connection::getInstance()->error;
-
-			throw new Exception();
+			throw new Exception($this->connection::getInstance()->error);
 		}
 
 		return $this->connection::getInstance()->insert_id;
@@ -77,7 +76,7 @@ class DbService {
 	 * @param string $tableName
 	 * @param array  $columns
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	public function createTable(string $tableName, array $columns) {
 		$columnsString = implode(',', $columns);
@@ -89,12 +88,10 @@ class DbService {
 			');
 
 		if (0 !== $this->connection::getInstance()->errno) {
-			echo 'CREATE ERROR: ' . $this->connection::getInstance()->error;
-
-			throw new Exception();
+			throw new Exception($this->connection::getInstance()->error);
 		}
 
-		echo 'Table: ' . $tableName . ' created.' . PHP_EOL;
+		Message::output('Table ' . $tableName . ' created.', Message::CODE_INFO);
 	}
 
 	/**
@@ -103,19 +100,17 @@ class DbService {
 	 * @param string $tableName
 	 * @param string $keyName
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	public function addKeyUnique(string $tableName, string $keyName) {
 		$this->connection::getInstance()->query('
 				ALTER TABLE ' . $tableName . ' ADD UNIQUE unique_' . $keyName . ' (' . $keyName . ');');
 
 		if (0 !== $this->connection::getInstance()->errno) {
-			echo 'ADD KEY ERROR: ' . $this->connection::getInstance()->error;
-
-			throw new Exception();
+			throw new Exception($this->connection::getInstance()->error);
 		}
 
-		echo 'Unique key: ' . $keyName . ' created on table ' . $tableName . PHP_EOL;
+		Message::output('Unique key ' . $keyName . ' created on table ' . $tableName, Message::CODE_INFO);
 	}
 
 	/**
@@ -123,18 +118,16 @@ class DbService {
 	 *
 	 * @param string $tableName Name of table
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	public function dropTable(string $tableName) {
 		$this->connection::getInstance()->query('DROP TABLE ' . $tableName);
 
 		if (0 !== $this->connection::getInstance()->errno) {
-			echo 'DROP ERROR: ' . $this->connection::getInstance()->error;
-
-			throw new Exception();
+			throw new Exception($this->connection::getInstance()->error);
 		}
 
-		echo 'Table: ' . $tableName . ' dropped.' . PHP_EOL;
+		Message::output('Table ' . $tableName . ' dropped.', Message::CODE_INFO);
 	}
 
 	/**
@@ -142,17 +135,15 @@ class DbService {
 	 *
 	 * @param string $tableName Name of table
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	public function truncateTable(string $tableName) {
 		$this->connection::getInstance()->query('TRUNCATE TABLE ' . $tableName);
 
 		if (0 !== $this->connection::getInstance()->errno) {
-			echo 'TRUNCATE ERROR: ' . $this->connection::getInstance()->error;
-
-			throw new Exception();
+			throw new Exception($this->connection::getInstance()->error);
 		}
 
-		echo 'Table: ' . $tableName . ' truncated.' . PHP_EOL;
+		Message::output('Table ' . $tableName . ' truncated.', Message::CODE_INFO);
 	}
 }
