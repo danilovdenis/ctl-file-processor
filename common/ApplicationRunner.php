@@ -130,5 +130,10 @@ class ApplicationRunner {
 		catch (Throwable $e) {
 			throw new Exception($e->getMessage(), $e->getCode());
 		}
+
+		echo implode(PHP_EOL, [
+			'Unknown command',
+			'Type --help to see help information' . PHP_EOL
+		]);
 	}
 }

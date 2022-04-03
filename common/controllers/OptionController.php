@@ -174,7 +174,7 @@ class OptionController {
 		return implode(PHP_EOL, [
 			'Value Not Found',
 			'PLease, Set ' . $parameter,
-			'Type --help to see help information'
+			'Type --help to see help information' . PHP_EOL
 		]);
 	}
 
@@ -187,7 +187,7 @@ class OptionController {
 		return implode(PHP_EOL, [
 			'Missing required connection parameters.',
 			'PLease, Set -u -p -h -d.',
-			'Type --help to see help information.'
+			'Type --help to see help information.' . PHP_EOL
 		]);
 	}
 
