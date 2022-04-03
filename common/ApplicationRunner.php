@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace src\service;
+namespace common\service;
 
 use dto\service\ConfigDto;
-use src\controller\OptionController;
+use common\controller\OptionController;
 use Throwable;
 
 /**

@@ -30,7 +30,7 @@ function scandirRec($root) {
  * @param $class
  */
 function myAutoloader($class) {
-	scandirRec('src');
+	scandirRec('common');
 }
 
 spl_autoload_register('myAutoloader');

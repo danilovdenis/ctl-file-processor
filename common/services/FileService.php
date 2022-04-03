@@ -2,10 +2,10 @@
 
 declare(strict_types = 1);
 
-namespace src\service;
+namespace common\service;
 
 use dto\service\UsersDto;
-use src\components\validators\EmailValidator;
+use common\components\validators\EmailValidator;
 
 /**
  * Service to prepare file.

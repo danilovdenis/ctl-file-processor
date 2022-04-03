@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace src\controller;
+namespace common\controller;
 
 use dto\service\ConfigDto;
 use Exception;
-use src\components\DBConnection;
-use src\service\DbService;
-use src\service\FileService;
+use common\components\DBConnection;
+use common\service\DbService;
+use common\service\FileService;
 
 /**
  * Options controller.
@@ -54,7 +54,7 @@ class OptionController {
 			throw new Exception();
 		}
 
-		if (!$this->config->host || !$this->config->user || !$this->config->password || !$this->config->host) {
+		if (!$this->hasDbParameters()) {
 			$this->showMissingConnectionError();
 
 			throw new Exception();
@@ -94,7 +94,7 @@ class OptionController {
 			throw new Exception();
 		}
 
-		if (!$this->config->host || !$this->config->user || !$this->config->password || !$this->config->host) {
+		if (!$this->hasDbParameters()) {
 			$this->showMissingConnectionError();
 
 			throw new Exception();
@@ -124,7 +124,7 @@ class OptionController {
 			throw new Exception();
 		}
 
-		if (!$this->config->host || !$this->config->user || !$this->config->password || !$this->config->host) {
+		if (!$this->hasDbParameters()) {
 			$this->showMissingConnectionError();
 
 			throw new Exception();
@@ -161,13 +161,13 @@ class OptionController {
 			throw new Exception();
 		}
 
-		if (!$this->config->host || !$this->config->user || !$this->config->password || !$this->config->host) {
+		if (!$this->hasDbParameters()) {
 			$this->showMissingConnectionError();
 
 			throw new Exception();
 		}
 
-		$this->dbService->connect(new DBConnection($this->config->host, $this->config->user, $this->config->password, 'db_users'));
+		$this->dbService->connect(new DBConnection($this->config->host, $this->config->user, $this->config->password, $this->config->dbName));
 
 		$this->dbService->truncateTable($tableName);
 	}
@@ -203,17 +203,20 @@ class OptionController {
 	 */
 	public function actionHelp() {
 		echo PHP_EOL;
-		echo 'USAGE' . PHP_EOL;
+		echo 'USAGE:' . PHP_EOL;
 		echo PHP_EOL;
-		echo '--file           [File name]        Parsing file and insert into table' . PHP_EOL;
-		echo '--create_table   [Table name]       Create table in database' . PHP_EOL;
-		echo '--drop_table     [Table name]       Drop table in database' . PHP_EOL;
-		echo '--truncate_table [Table name]       Truncate table in database' . PHP_EOL;
+		echo '--file              [File name]     Parsing file and insert into table' . PHP_EOL;
+		echo '--create_table      [Table name]    Create table in database' . PHP_EOL;
+		echo '--drop_table        [Table name]    Drop table in database' . PHP_EOL;
+		echo '--truncate_table    [Table name]    Truncate table in database' . PHP_EOL;
 		echo '--dry_run                           Parsing file and prepare to processing without insert' . PHP_EOL;
-		echo '-u               [User name]        User name' . PHP_EOL;
-		echo '-p               [Password]         User password' . PHP_EOL;
-		echo '-h               [Host name or IP]  Database host' . PHP_EOL;
-		echo '-d               [Database name]    Database name' . PHP_EOL;
+		echo PHP_EOL;
+		echo '-u   [User name]          User name' . PHP_EOL;
+		echo '-p   [Password]           User password' . PHP_EOL;
+		echo '-h   [Host name or IP]    Database host' . PHP_EOL;
+		echo '-d   [Database name]      Database name' . PHP_EOL;
+		echo PHP_EOL;
+		echo '--help                              Help information' . PHP_EOL;
 		echo PHP_EOL;
 	}
 
@@ -234,8 +237,17 @@ class OptionController {
 	 */
 	private function showMissingConnectionError() {
 		echo PHP_EOL;
-		echo 'Missing required connection parameters' . PHP_EOL;
-		echo 'PLease, Set -u -p -h'  . PHP_EOL;
-		echo 'Type --help to see help information' . PHP_EOL;
+		echo 'Missing required connection parameters.' . PHP_EOL;
+		echo 'PLease, Set -u -p -h -d.'  . PHP_EOL;
+		echo 'Type --help to see help information.' . PHP_EOL;
+	}
+
+	/**
+	 * Check if all db parameters exist.
+	 *
+	 * @return bool
+	 */
+	private function hasDbParameters(): bool {
+		return ($this->config->host && $this->config->user && $this->config->password && $this->config->dbName);
 	}
 }

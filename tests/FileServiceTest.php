@@ -4,12 +4,12 @@ namespace tests;
 
 use dto\service\UsersDto;
 use PHPUnit\Framework\TestCase;
-use src\service\FileService;
+use common\service\FileService;
 
 /**
  * Test of File Service
  *
- * @see \src\components\validators\EmailValidator
+ * @see \common\components\validators\EmailValidator
  */
 class FileServiceTest extends TestCase {
 

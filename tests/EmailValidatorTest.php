@@ -3,10 +3,10 @@
 namespace tests;
 
 use PHPUnit\Framework\TestCase;
-use src\components\validators\EmailValidator;
+use common\components\validators\EmailValidator;
 
 /**
- * @see \src\components\validators\EmailValidator
+ * @see \common\components\validators\EmailValidator
  *
  */
 class EmailValidatorTest extends TestCase {

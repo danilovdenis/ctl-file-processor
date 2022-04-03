@@ -1,4 +1,4 @@
 <?php
 require __DIR__ . '/autoloader.php';
 
-(new \src\service\ApplicationRunner())->run();
+(new \common\service\ApplicationRunner())->run();

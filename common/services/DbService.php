@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace src\service;
+namespace common\service;
 
 use dto\service\UsersDto;
 use Exception;
-use src\components\DBConnection;
+use common\components\DBConnection;
 use Throwable;
 
 /**

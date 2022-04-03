@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace src\components\validators;
+namespace common\components\validators;
 
 /**
  * Email validator
