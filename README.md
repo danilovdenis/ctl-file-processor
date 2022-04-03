@@ -36,5 +36,5 @@ php file_upload.php --file=users.csv -hlocalhost -uuser -ppassword -ddb_users
 | -p               | Password        |  User password |
 | -h               | Host name or IP |  Database host |
 | -d               | Name            |  Database name |
-| -help            |                 |  Help information |
+| --help            |                 |  Help information |
 
