@@ -74,10 +74,12 @@ class FileService {
 			return null;
 		}
 
-		$fileRow->name    = ucfirst(strtolower(trim($fileRow->name)));
-		$fileRow->surname = ucfirst(strtolower(trim($fileRow->surname)));
-		$fileRow->email   = strtolower(trim($fileRow->email));
+		$preparedRow = new UsersDto();
 
-		return $fileRow;
+		$preparedRow->name    = ucfirst(strtolower(trim($fileRow->name)));
+		$preparedRow->surname = ucfirst(strtolower(trim($fileRow->surname)));
+		$preparedRow->email   = strtolower(trim($fileRow->email));
+
+		return $preparedRow;
 	}
 }

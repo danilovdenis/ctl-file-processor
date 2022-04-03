@@ -36,7 +36,7 @@ class FileServiceTest extends TestCase {
 	public function testPrepareRowValue() {
 		$user = new UsersDto();
 
-		$user->name    = 'john';
+		$user->name    = 'joHn';
 		$user->surname = 'xohnsOn';
 		$user->email   = 'tesT@mail.ru';
 
@@ -46,7 +46,7 @@ class FileServiceTest extends TestCase {
 
 		$this->assertMatchesRegularExpression('/^[A-Z][a-z]*/', $row->name, 'Name is not valid');
 		$this->assertMatchesRegularExpression('/^[A-Z][a-z]*/', $row->surname, 'Surname is not valid');
-		$this->assertMatchesRegularExpression('/^[a-z]*/', $user->email, 'Email is not valid');
+		$this->assertMatchesRegularExpression('/^[a-z]*[@][a-z]*[.][a-z]*/', $row->email, 'Email is not valid');
 	}
 
 	/**
