@@ -54,6 +54,10 @@ class OptionController {
 			throw new Exception($this->getNotFoundError('File Name'));
 		}
 
+		if (pathinfo($fileName)['extension'] !== 'csv') {
+			throw new Exception('Unsupported file format. Only csv');
+		}
+
 		if (!$this->hasDbParameters()) {
 			throw new Exception($this->getMissingConnectionError());
 		}
@@ -169,6 +173,10 @@ class OptionController {
 		}
 
 		$data = $this->fileService->prepareData($filename);
+
+		if (0 === count($data)) {
+			throw new Exception('No users to upload', 1);
+		}
 
 		Message::output('DATA PREPARED:', Message::CODE_INFO);
 		Message::output('---------------', Message::CODE_INFO);

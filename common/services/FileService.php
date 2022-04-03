@@ -40,7 +40,7 @@ class FileService {
 			}
 
 			if (3 !== count($rowData)) {
-				Message::output('Data is not full', Message::CODE_WARNING);
+				Message::output('Data is incorrect', Message::CODE_WARNING);
 
 				continue;
 			}
