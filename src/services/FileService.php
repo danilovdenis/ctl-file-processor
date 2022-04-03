@@ -8,12 +8,12 @@ use dto\service\UsersDto;
 use src\components\validators\EmailValidator;
 
 /**
- * Service to prepare file
+ * Service to prepare file.
  */
 class FileService {
 
 	/**
-	 * Prepare data to processing
+	 * Prepare data to processing.
 	 *
 	 * @param string $filename Name of file
 	 *
@@ -28,8 +28,13 @@ class FileService {
 		foreach ($rows as $row) {
 			$rowData = explode(',', $row);
 
-			// @todo
+			if (0 === count($rowData)) {
+				continue;
+			}
+
 			if (3 !== count($rowData)) {
+				echo 'WARNING: Data is not full ' . $row . PHP_EOL;
+
 				continue;
 			}
 
@@ -48,7 +53,7 @@ class FileService {
 	}
 
 	/**
-	 * Prepare and validate row
+	 * Prepare and validate row.
 	 *
 	 * @param UsersDto $fileRow File row model
 	 *
@@ -56,7 +61,7 @@ class FileService {
 	 */
 	public function prepareRow(UsersDto $fileRow): ?UsersDto {
 		if (false === (EmailValidator::validate($fileRow->email))) {
-			echo 'Warning: Email ' . $fileRow->email . ' is not valid' . PHP_EOL;
+			echo 'WARNING: Email ' . $fileRow->email . ' is not valid' . PHP_EOL;
 
 			return null;
 		}

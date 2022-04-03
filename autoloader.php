@@ -1,16 +1,36 @@
 <?php
 
 /**
- * Autoload classes
+ * Scanning directory and include file
+ *
+ * @param $root
+ */
+function scandirRec($root) {
+	$output = [];
+	$dirs = scandir($root);
+	foreach ($dirs as $dir) {
+		if ($dir == '.' || $dir == '..') {
+			continue;
+		}
+
+		$path = $root . '/' . $dir;
+		if (is_file($path)) {
+			include_once __DIR__ . '/' . $path;
+
+		}
+		else if (is_dir($path)) {
+			scandirRec($path);
+		}
+	}
+}
+
+/**
+ * Autoload classes.
  *
  * @param $class
  */
 function myAutoloader($class) {
-	include_once './src/services/FileService.php';
-	include_once './src/services/DbService.php';
-	include_once './src/components/DBConnection.php';
-	include_once './src/dto/UsersDto.php';
-	include_once './src/ApplicationRunner.php';
+	scandirRec('src');
 }
 
 spl_autoload_register('myAutoloader');

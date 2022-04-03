@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace src\service;
 
-use dto\service\UsersDto;
-use Exception;
-use src\components\DBConnection;
+use dto\service\ConfigDto;
+use src\controller\OptionController;
 use Throwable;
 
 /**
- * Main Class of Application
+ * Main Class of Application.
  */
 class ApplicationRunner {
 
@@ -24,39 +23,21 @@ class ApplicationRunner {
 	const COMMAND_USER     = 'u';
 	const COMMAND_PASSWORD = 'p';
 	const COMMAND_HOST     = 'h';
+	const COMMAND_DATABASE = 'd';
 
 	const TYPE_OPTIONAL = '::';
-
-	/** File service  */
-	protected FileService $fileService;
-
-	/** DB service  */
-	protected DbService $dbService;
-
-	/** @var UsersDto[] */
-	protected array $rowsData;
 
 	/** Commands */
 	protected array $opts;
 
-	/** @var string|null|false $fileName */
-	protected $fileName;
-	/** @var string|null|false $user */
-	protected $user;
-	/** @var string|null|false $password */
-	protected $password;
-	/** @var string|null|false $host */
-	protected $host;
-	/** @var string|null|false $tableName */
-	protected $tableName;
+	/** @var OptionController Controller */
+	protected OptionController $controller;
 
 	/**
-	 * @param FileService $fileService
-	 * @param DbService   $dbService
+	 * Application Constructor.
 	 */
-	public function __construct(FileService $fileService, DbService $dbService) {
-		$this->fileService = $fileService;
-		$this->dbService   = $dbService;
+	public function __construct() {
+		$this->controller = new OptionController(new FileService(), new DbService());
 	}
 
 	/**
@@ -82,6 +63,7 @@ class ApplicationRunner {
 			static::COMMAND_USER . static::TYPE_OPTIONAL,
 			static::COMMAND_PASSWORD . static::TYPE_OPTIONAL,
 			static::COMMAND_HOST . static::TYPE_OPTIONAL,
+			static::COMMAND_DATABASE . static::TYPE_OPTIONAL,
 		]);
 
 		$this->opts = getopt(
@@ -94,47 +76,54 @@ class ApplicationRunner {
 				static::COMMAND_DRY_RUN . static::TYPE_OPTIONAL,
 				static::COMMAND_HELP,
 			]);
+
+		$optionsDto = new ConfigDto();
+
+		$optionsDto->user     = $this->opts[static::COMMAND_USER]     ?? null;
+		$optionsDto->password = $this->opts[static::COMMAND_PASSWORD] ?? null;
+		$optionsDto->host     = $this->opts[static::COMMAND_HOST]     ?? null;
+		$optionsDto->dbName   = $this->opts[static::COMMAND_DATABASE] ?? null;
+
+		$this->controller->setConfig($optionsDto);
 	}
 
 	/**
-	 * Processed set command
+	 * Processed set command.
 	 */
 	protected function processCommand() {
-		try {
-			$this->fileName = $this->opts[static::COMMAND_FILE]     ?? null;
-			$this->user     = $this->opts[static::COMMAND_USER]     ?? null;
-			$this->password = $this->opts[static::COMMAND_PASSWORD] ?? null;
-			$this->host     = $this->opts[static::COMMAND_HOST]     ?? null;
+		if (array_key_exists(static::COMMAND_HELP, $this->opts)) {
+			$this->controller->actionHelp();
 
+			return;
+		}
+
+		try {
 			if (array_key_exists(static::COMMAND_FILE, $this->opts) && !array_key_exists(static::COMMAND_DRY_RUN, $this->opts)) {
-				$this->actionFile();
+				$this->controller->actionFile($this->opts[static::COMMAND_FILE] ?? null);
 
 				return;
 			}
 
 			if (array_key_exists(static::COMMAND_FILE, $this->opts) && array_key_exists(static::COMMAND_DRY_RUN, $this->opts)) {
-				$this->actionDryRun();
+				$this->controller->actionDryRun($this->opts[static::COMMAND_FILE] ?? null);
 
 				return;
 			}
 
 			if (array_key_exists(static::COMMAND_CREATE_TABLE, $this->opts)) {
-				$this->tableName = $this->opts[static::COMMAND_CREATE_TABLE] ?? null;
-				$this->actionCreateTable();
+				$this->controller->actionCreateTable($this->opts[static::COMMAND_CREATE_TABLE] ?? null);
 
 				return;
 			}
 
 			if (array_key_exists(static::COMMAND_DROP_TABLE, $this->opts)) {
-				$this->tableName = $this->opts[static::COMMAND_DROP_TABLE] ?? null;
-				$this->actionDropTable();
+				$this->controller->actionDropTable($this->opts[static::COMMAND_DROP_TABLE] ?? null);
 
 				return;
 			}
 
 			if (array_key_exists(static::COMMAND_TRUNCATE_TABLE, $this->opts)) {
-				$this->tableName = $this->opts[static::COMMAND_TRUNCATE_TABLE] ?? null;
-				$this->actionTruncateTable();
+				$this->controller->actionTruncateTable($this->opts[static::COMMAND_TRUNCATE_TABLE] ?? null);
 
 				return;
 			}
@@ -142,165 +131,5 @@ class ApplicationRunner {
 		catch (Throwable $e) {
 			echo $e->getMessage() . PHP_EOL;
 		}
-
-		if (array_key_exists('help', $this->opts)) {
-			$this->actionHelp();
-		}
-	}
-
-	/**
-	 * Processing file action
-	 *
-	 * @throws Exception
-	 */
-	private function actionFile() {
-		if (!$this->fileName) {
-			$this->showNotFoundError('File Name');
-
-			throw new Exception();
-		}
-
-		if (!$this->user) {
-			$this->showNotFoundError('Username');
-
-			throw new Exception();
-		}
-
-		if (!$this->password) {
-			$this->showNotFoundError('Password');
-
-			throw new Exception();
-		}
-
-		if (!$this->host) {
-			$this->showNotFoundError('Host');
-
-			throw new Exception();
-		}
-
-		$this->rowsData = $this->fileService->prepareData($this->fileName);
-
-		if (0 === count($this->rowsData)) {
-			// @todo
-			echo "No users" . PHP_EOL;
-
-			throw new Exception();
-		}
-
-		// @todo db opt?
-		$this->dbService->connect(new DBConnection($this->host, $this->user, $this->password, 'db_users'));
-
-		$this->dbService->batchInsertUsers($this->rowsData);
-	}
-
-	/**
-	 * Drop table action
-	 *
-	 * @throws Exception
-	 */
-	private function actionDropTable() {
-		if (!$this->tableName) {
-			$this->showNotFoundError('Table Name');
-
-			throw new Exception();
-		}
-
-		$this->dbService->connect(new DBConnection($this->host, $this->user, $this->password, 'db_users'));
-
-		$this->dbService->dropTable($this->tableName);
-	}
-
-	/**
-	 * Create table action
-	 *
-	 * @throws Exception
-	 */
-	private function actionCreateTable() {
-		if (!$this->tableName) {
-			$this->showNotFoundError('Table Name');
-
-			throw new Exception();
-		}
-
-		$this->dbService->connect(new DBConnection($this->host, $this->user, $this->password, 'db_users'));
-
-		$this->dbService->createTable($this->tableName,
-			[
-				'username VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Username"',
-				'surname  VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Surname"',
-				'email    VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Email"',
-			]
-		);
-	}
-
-	/**
-	 * Truncate table action
-	 *
-	 * @throws Exception
-	 */
-	private function actionTruncateTable() {
-		if (!$this->tableName) {
-			$this->showNotFoundError('Table Name');
-
-			throw new Exception();
-		}
-
-		$this->dbService->connect(new DBConnection($this->host, $this->user, $this->password, 'db_users'));
-
-		$this->dbService->truncateTable($this->tableName);
-	}
-
-	/**
-	 * Parse file without insert into database.
-	 *
-	 * @throws Exception
-	 */
-	private function actionDryRun() {
-		if (!$this->fileName) {
-			$this->showNotFoundError('File Name');
-
-			throw new Exception();
-		}
-
-		$this->rowsData = $this->fileService->prepareData($this->fileName);
-
-		echo PHP_EOL;
-		echo 'DATA PREPARED:' . PHP_EOL;
-		echo '---------------' . PHP_EOL;
-		foreach ($this->rowsData as $key => $row) {
-			echo $key . '. ' . 'USERNAME: ' . $row->name . ' | SURNAME: ' . $row->surname . ' | EMAIL: ' . $row->email . PHP_EOL;
-		}
-		echo '---------------' . PHP_EOL;
-	}
-
-	/**
-	 * Help information.
-	 * Output information block into STDOUT.
-	 */
-	private function actionHelp() {
-		echo PHP_EOL;
-		echo 'USAGE' . PHP_EOL;
-		echo PHP_EOL;
-		echo '--file           [File name]        Parsing file and insert into table' . PHP_EOL;
-		echo '--create_table   [Table name]       Create table in database' . PHP_EOL;
-		echo '--drop_table     [Table name]       Drop table in database' . PHP_EOL;
-		echo '--truncate_table [Table name]       Truncate table in database' . PHP_EOL;
-		echo '--dry_run                           Parsing file and prepare to processing without insert' . PHP_EOL;
-		echo '-u               [User name]        Create table in database' . PHP_EOL;
-		echo '-p               [Password]         Create table in database' . PHP_EOL;
-		echo '-h               [host name or IP]  Create table in database' . PHP_EOL;
-		echo PHP_EOL;
-	}
-
-	/**
-	 * Output error message.
-	 *
-	 * @param string $parameter Name of parameter
-	 */
-	private function showNotFoundError(string $parameter) {
-		echo PHP_EOL;
-		echo 'Value Not Found' . PHP_EOL;
-		echo 'PLease, Set ' . $parameter . PHP_EOL;
-		echo 'Type --help to see help information' . PHP_EOL;
 	}
 }
