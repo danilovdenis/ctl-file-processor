@@ -146,4 +146,36 @@ class DbService {
 
 		Message::output('Table ' . $tableName . ' truncated.', Message::CODE_INFO);
 	}
+
+	/**
+	 * Create database.
+	 *
+	 * @param string $dbName Name of database
+	 *
+	 * @throws Throwable
+	 */
+	public function createDatabase(string $dbName) {
+		$this->connection::getInstance()->query('CREATE DATABASE ' . $dbName);
+
+		if (0 !== $this->connection::getInstance()->errno) {
+			throw new Exception($this->connection::getInstance()->error);
+		}
+	}
+
+	/**
+	 * Create database.
+	 *
+	 * @param string $dbName     Name of database
+	 * @param string $userString Full user String (user@localhost)
+	 *
+	 * @throws Throwable
+	 */
+	public function addPrivileges(string $dbName, string $userString) {
+		$this->connection::getInstance()->query('GRANT ALL PRIVILEGES ON ' . $dbName . '.* to ' . $userString . ';');
+		$this->connection::getInstance()->query('FLUSH PRIVILEGES');
+
+		if (0 !== $this->connection::getInstance()->errno) {
+			throw new Exception($this->connection::getInstance()->error);
+		}
+	}
 }

@@ -9,7 +9,7 @@ use common\service\FileService;
 /**
  * Test of File Service
  *
- * @see \common\components\validators\EmailValidator
+ * @see \common\service\FileService
  */
 class FileServiceTest extends TestCase {
 
@@ -38,7 +38,7 @@ class FileServiceTest extends TestCase {
 
 		$user->name    = 'john';
 		$user->surname = 'xohnsOn';
-		$user->email   = 'test@mail.ru';
+		$user->email   = 'tesT@mail.ru';
 
 		$service = new FileService();
 
@@ -46,6 +46,7 @@ class FileServiceTest extends TestCase {
 
 		$this->assertMatchesRegularExpression('/^[A-Z][a-z]*/', $row->name, 'Name is not valid');
 		$this->assertMatchesRegularExpression('/^[A-Z][a-z]*/', $row->surname, 'Surname is not valid');
+		$this->assertMatchesRegularExpression('/^[a-z]*/', $user->email, 'Email is not valid');
 	}
 
 	/**

@@ -51,7 +51,10 @@ class FileService {
 			$dto->email   = $rowData[2];
 
 			$preparedRow = $this->prepareRow($dto);
-			if (null !== $preparedRow) {
+			if (null === $preparedRow) {
+				Message::output('Email ' . $dto->email . ' is not valid', Message::CODE_WARNING);
+			}
+			else {
 				$data[] = $preparedRow;
 			}
 		}
@@ -68,8 +71,6 @@ class FileService {
 	 */
 	public function prepareRow(UsersDto $fileRow): ?UsersDto {
 		if (false === (EmailValidator::validate($fileRow->email))) {
-			Message::output('Email ' . $fileRow->email . ' is not valid', Message::CODE_WARNING);
-
 			return null;
 		}
 

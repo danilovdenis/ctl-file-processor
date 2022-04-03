@@ -32,7 +32,7 @@ class DBConnection {
 	 *
 	 * @throws Throwable
 	 */
-	public function __construct(string $host, string $user, string $password, string $dbname) {
+	public function __construct(string $host, string $user, string $password, string $dbname = '') {
 		static::$host     = $host;
 		static::$user     = $user;
 		static::$password = $password;
