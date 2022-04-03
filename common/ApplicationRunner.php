@@ -29,6 +29,8 @@ class ApplicationRunner {
 
 	const TYPE_OPTIONAL = '::';
 
+	const TABLE_USERS = 'users';
+
 	/** Commands */
 	protected array $opts;
 
@@ -107,32 +109,20 @@ class ApplicationRunner {
 		}
 
 		try {
+			if (array_key_exists(static::COMMAND_CREATE_TABLE, $this->opts)) {
+				$this->controller->actionCreateTable(static::TABLE_USERS);
+
+				return;
+			}
+
 			if (array_key_exists(static::COMMAND_FILE, $this->opts) && !array_key_exists(static::COMMAND_DRY_RUN, $this->opts)) {
-				$this->controller->actionFile($this->opts[static::COMMAND_FILE] ?? null);
+				$this->controller->actionFile($this->opts[static::COMMAND_FILE] ?? null, static::TABLE_USERS);
 
 				return;
 			}
 
 			if (array_key_exists(static::COMMAND_FILE, $this->opts) && array_key_exists(static::COMMAND_DRY_RUN, $this->opts)) {
 				$this->controller->actionDryRun($this->opts[static::COMMAND_FILE] ?? null);
-
-				return;
-			}
-
-			if (array_key_exists(static::COMMAND_CREATE_TABLE, $this->opts)) {
-				$this->controller->actionCreateTable($this->opts[static::COMMAND_CREATE_TABLE] ?? null);
-
-				return;
-			}
-
-			if (array_key_exists(static::COMMAND_DROP_TABLE, $this->opts)) {
-				$this->controller->actionDropTable($this->opts[static::COMMAND_DROP_TABLE] ?? null);
-
-				return;
-			}
-
-			if (array_key_exists(static::COMMAND_TRUNCATE_TABLE, $this->opts)) {
-				$this->controller->actionTruncateTable($this->opts[static::COMMAND_TRUNCATE_TABLE] ?? null);
 
 				return;
 			}

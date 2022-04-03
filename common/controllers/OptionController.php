@@ -45,11 +45,12 @@ class OptionController {
 	/**
 	 * Processing file action.
 	 *
+	 * @param string            $tableName
 	 * @param string|false|null $fileName
 	 *
 	 * @throws Throwable
 	 */
-	public function actionFile($fileName) {
+	public function actionFile($fileName, string $tableName) {
 		if (!$fileName) {
 			throw new Exception($this->getNotFoundError('File Name'));
 		}
@@ -75,35 +76,9 @@ class OptionController {
 			$this->config->dbName
 		));
 
-		$this->dbService->batchInsertUsers($data);
+		$this->dbService->batchInsertUsers($tableName, $data);
 
 		Message::output('File data uploaded', Message::CODE_INFO);
-	}
-
-	/**
-	 * Drop table action.
-	 *
-	 * @param string|false|null $tableName
-	 *
-	 * @throws Throwable
-	 */
-	public function actionDropTable($tableName) {
-		if (!$tableName) {
-			throw new Exception($this->getNotFoundError('Table Name'));
-		}
-
-		if (!$this->hasDbParameters()) {
-			throw new Exception($this->getMissingConnectionError());
-		}
-
-		$this->dbService->connect(new DBConnection(
-			$this->config->host,
-			$this->config->user,
-			$this->config->password,
-			$this->config->dbName
-		));
-
-		$this->dbService->dropTable($tableName);
 	}
 
 	/**
@@ -137,27 +112,6 @@ class OptionController {
 			]
 		);
 		$this->dbService->addKeyUnique($tableName, 'email');
-	}
-
-	/**
-	 * Truncate table action.
-	 *
-	  @param string|false|null $tableName
-	 *
-	 * @throws Throwable
-	 */
-	public function actionTruncateTable(?string $tableName) {
-		if (!$tableName) {
-			throw new Exception($this->getNotFoundError('Table Name'));
-		}
-
-		if (!$this->hasDbParameters()) {
-			throw new Exception($this->getMissingConnectionError());
-		}
-
-		$this->dbService->connect(new DBConnection($this->config->host, $this->config->user, $this->config->password, $this->config->dbName));
-
-		$this->dbService->truncateTable($tableName);
 	}
 
 	/**

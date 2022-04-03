@@ -28,16 +28,17 @@ class DbService {
 	/**
 	 * Batch insert users into db.
 	 *
+	 * @param string     $tableName
 	 * @param UsersDto[] $data
 	 *
 	 * @throws Throwable
 	 */
-	public function batchInsertUsers(array $data) {
+	public function batchInsertUsers(string $tableName, array $data) {
 		$this->connection::getInstance()->begin_transaction();
 
 		try {
 			foreach ($data as $row) {
-				$this->insertUser($row);
+				$this->insertUser($tableName, $row);
 			}
 		}
 		catch (Throwable $e) {
@@ -54,13 +55,14 @@ class DbService {
 	/**
 	 * Insert user data into table 'users'.
 	 *
+	 * @param string   $tableName
 	 * @param UsersDto $user
 	 *
 	 * @return int
 	 * @throws Throwable
 	 */
-	public function insertUser(UsersDto $user): int {
-		$sql = 'INSERT INTO test(username, surname, email) VALUES ("' . $user->name . '", "' . $user->surname . '", "' . $user->email . '");';
+	public function insertUser(string $tableName, UsersDto $user): int {
+		$sql = 'INSERT INTO ' . $tableName . '(username, surname, email) VALUES ("' . $user->name . '", "' . $user->surname . '", "' . $user->email . '");';
 		$this->connection::getInstance()->query($sql);
 
 		if ('' !== $this->connection::getInstance()->error) {
@@ -80,6 +82,8 @@ class DbService {
 	 */
 	public function createTable(string $tableName, array $columns) {
 		$columnsString = implode(',', $columns);
+
+		$this->connection::getInstance()->query('DROP TABLE IF EXISTS ' . $tableName);
 
 		$this->connection::getInstance()->query('
 				CREATE TABLE ' . $tableName . ' (
@@ -111,71 +115,5 @@ class DbService {
 		}
 
 		Message::output('Unique key ' . $keyName . ' created on table ' . $tableName, Message::CODE_INFO);
-	}
-
-	/**
-	 * Drop the table.
-	 *
-	 * @param string $tableName Name of table
-	 *
-	 * @throws Throwable
-	 */
-	public function dropTable(string $tableName) {
-		$this->connection::getInstance()->query('DROP TABLE ' . $tableName);
-
-		if (0 !== $this->connection::getInstance()->errno) {
-			throw new Exception($this->connection::getInstance()->error);
-		}
-
-		Message::output('Table ' . $tableName . ' dropped.', Message::CODE_INFO);
-	}
-
-	/**
-	 * Drop the table.
-	 *
-	 * @param string $tableName Name of table
-	 *
-	 * @throws Throwable
-	 */
-	public function truncateTable(string $tableName) {
-		$this->connection::getInstance()->query('TRUNCATE TABLE ' . $tableName);
-
-		if (0 !== $this->connection::getInstance()->errno) {
-			throw new Exception($this->connection::getInstance()->error);
-		}
-
-		Message::output('Table ' . $tableName . ' truncated.', Message::CODE_INFO);
-	}
-
-	/**
-	 * Create database.
-	 *
-	 * @param string $dbName Name of database
-	 *
-	 * @throws Throwable
-	 */
-	public function createDatabase(string $dbName) {
-		$this->connection::getInstance()->query('CREATE DATABASE ' . $dbName);
-
-		if (0 !== $this->connection::getInstance()->errno) {
-			throw new Exception($this->connection::getInstance()->error);
-		}
-	}
-
-	/**
-	 * Create database.
-	 *
-	 * @param string $dbName     Name of database
-	 * @param string $userString Full user String (user@localhost)
-	 *
-	 * @throws Throwable
-	 */
-	public function addPrivileges(string $dbName, string $userString) {
-		$this->connection::getInstance()->query('GRANT ALL PRIVILEGES ON ' . $dbName . '.* to ' . $userString . ';');
-		$this->connection::getInstance()->query('FLUSH PRIVILEGES');
-
-		if (0 !== $this->connection::getInstance()->errno) {
-			throw new Exception($this->connection::getInstance()->error);
-		}
 	}
 }
