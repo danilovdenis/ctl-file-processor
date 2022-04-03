@@ -14,10 +14,5 @@
 	},
 	"require-dev": {
 		"phpunit/phpunit": "9.5.16"
-	},
-	"autoload": {
-		"psr4": {
-			"Fogersp\\SuperProject\\": "src"
-		}
 	}
 }
