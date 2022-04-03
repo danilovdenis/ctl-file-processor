@@ -22,6 +22,12 @@ class FileService {
 	public function prepareData(string $filename): array {
 		$fileContent = file_get_contents($filename);
 
+		if (!$fileContent) {
+			echo 'WARNING: File not found ' . PHP_EOL;
+
+			return [];
+		}
+
 		$rows = preg_split('/\n|\r\n?/', $fileContent);
 
 		$data = [];

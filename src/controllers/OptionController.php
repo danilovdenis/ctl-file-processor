@@ -63,7 +63,7 @@ class OptionController {
 		$data = $this->fileService->prepareData($fileName);
 
 		if (0 === count($data)) {
-			echo "No users to upload" . PHP_EOL;
+			echo 'WARNING: No users to upload' . PHP_EOL;
 
 			throw new Exception();
 		}
