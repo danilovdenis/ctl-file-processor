@@ -16,4 +16,6 @@ class ConfigDto {
 	public $host;
 	/** @var string|null|false $dbName */
 	public $dbName;
+	/** Table name */
+	public string $tableName;
 }

@@ -88,10 +88,11 @@ class ApplicationRunner {
 
 		$optionsDto = new ConfigDto();
 
-		$optionsDto->user     = $this->opts[static::COMMAND_USER]     ?? null;
-		$optionsDto->password = $this->opts[static::COMMAND_PASSWORD] ?? null;
-		$optionsDto->host     = $this->opts[static::COMMAND_HOST]     ?? null;
-		$optionsDto->dbName   = $this->opts[static::COMMAND_DATABASE] ?? null;
+		$optionsDto->user      = $this->opts[static::COMMAND_USER]     ?? null;
+		$optionsDto->password  = $this->opts[static::COMMAND_PASSWORD] ?? null;
+		$optionsDto->host      = $this->opts[static::COMMAND_HOST]     ?? null;
+		$optionsDto->dbName    = $this->opts[static::COMMAND_DATABASE] ?? null;
+		$optionsDto->tableName = static::TABLE_USERS;
 
 		$this->controller->setConfig($optionsDto);
 	}
@@ -110,13 +111,13 @@ class ApplicationRunner {
 
 		try {
 			if (array_key_exists(static::COMMAND_CREATE_TABLE, $this->opts)) {
-				$this->controller->actionCreateTable(static::TABLE_USERS);
+				$this->controller->actionCreateTable();
 
 				return;
 			}
 
 			if (array_key_exists(static::COMMAND_FILE, $this->opts) && !array_key_exists(static::COMMAND_DRY_RUN, $this->opts)) {
-				$this->controller->actionFile($this->opts[static::COMMAND_FILE] ?? null, static::TABLE_USERS);
+				$this->controller->actionFile($this->opts[static::COMMAND_FILE] ?? null);
 
 				return;
 			}

@@ -45,12 +45,11 @@ class OptionController {
 	/**
 	 * Processing file action.
 	 *
-	 * @param string            $tableName
 	 * @param string|false|null $fileName
 	 *
 	 * @throws Throwable
 	 */
-	public function actionFile($fileName, string $tableName) {
+	public function actionFile($fileName) {
 		if (!$fileName) {
 			throw new Exception($this->getNotFoundError('File Name'));
 		}
@@ -76,7 +75,7 @@ class OptionController {
 			$this->config->dbName
 		));
 
-		$this->dbService->batchInsertUsers($tableName, $data);
+		$this->dbService->batchInsertUsers($this->config->tableName, $data);
 
 		Message::output('File data uploaded', Message::CODE_INFO);
 	}
@@ -84,12 +83,10 @@ class OptionController {
 	/**
 	 * Create table action.
 	 *
-	 * @param string|false|null $tableName
-	 *
 	 * @throws Throwable
 	 */
-	public function actionCreateTable(?string $tableName) {
-		if (!$tableName) {
+	public function actionCreateTable() {
+		if (!$this->config->tableName) {
 			throw new Exception($this->getNotFoundError('Table Name'));
 		}
 
@@ -104,14 +101,14 @@ class OptionController {
 			$this->config->dbName
 		));
 
-		$this->dbService->createTable($tableName,
+		$this->dbService->createTable($this->config->tableName,
 			[
 				'username VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Username"',
 				'surname  VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Surname"',
 				'email    VARCHAR(128) DEFAULT "" NOT NULL COMMENT "Email"',
 			]
 		);
-		$this->dbService->addKeyUnique($tableName, 'email');
+		$this->dbService->addKeyUnique($this->config->tableName, 'email');
 	}
 
 	/**
