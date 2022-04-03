@@ -146,7 +146,7 @@ class OptionController {
 		echo 'USAGE:' . PHP_EOL;
 		echo PHP_EOL;
 		echo '--file              [File name]     Parsing file and insert into table' . PHP_EOL;
-		echo '--create_table      [Table name]    Create table in database' . PHP_EOL;
+		echo '--create_table      [Table name]    Create/recreate table in database' . PHP_EOL;
 		echo '--drop_table        [Table name]    Drop table in database' . PHP_EOL;
 		echo '--truncate_table    [Table name]    Truncate table in database' . PHP_EOL;
 		echo '--dry_run                           Parsing file and prepare to processing without insert' . PHP_EOL;
@@ -156,7 +156,7 @@ class OptionController {
 		echo '-h   [Host name or IP]    Database host' . PHP_EOL;
 		echo '-d   [Database name]      Database name' . PHP_EOL;
 		echo PHP_EOL;
-		echo '--help                              Help information' . PHP_EOL;
+		echo '--help    Help information' . PHP_EOL;
 		echo PHP_EOL;
 	}
 
