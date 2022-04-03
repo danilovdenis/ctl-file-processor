@@ -1,7 +1,9 @@
 # ctl-file-processor
 Processing and loading files into the database
 
+```shell
 composer install
+```
 
 ### RUN TESTS
 ./vendor/bin/phpunit --bootstrap autoloader.php tests/
