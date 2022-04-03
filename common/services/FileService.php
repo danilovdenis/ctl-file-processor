@@ -33,6 +33,10 @@ class FileService {
 
 		$data = [];
 		foreach ($rows as $row) {
+			if ('' === $row) {
+				continue;
+			}
+
 			$rowData = explode(',', $row);
 
 			if (0 === count($rowData)) {

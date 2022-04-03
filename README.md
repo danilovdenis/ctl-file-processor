@@ -3,12 +3,16 @@ Processing and loading files into the database
 
 composer install
 
-### create table
+### RUN TESTS
+./vendor/bin/phpunit --bootstrap autoloader.php tests/
+
+
+### CREATE TABLE
 ```php
 php file_upload.php --create_table -hlocalhost -uuser -ppassword -ddb_users
 ```
 
-### upload data into table
+### UPLOAD DATA INTO TABLE
 ```
 WARNING
 Table users has a unique key `email`. Therefore, you must first check the file for duplicate emails.
@@ -19,7 +23,7 @@ php file_upload.php --file=users.csv -hlocalhost -uuser -ppassword -ddb_users
 
 
 
-USAGE
+### USAGE
 
 | Command | Parameter | Description |
 | ---------- | ---------- | ---------- |
@@ -31,7 +35,4 @@ USAGE
 | -h               | Host name or IP |  Database host |
 | -d               | Name            |  Database name |
 | -help            |                 |  Help information |
-
-## RUN TESTS
-./vendor/bin/phpunit --bootstrap autoloader.php tests/
 
