@@ -15,10 +15,10 @@ use Throwable;
  */
 class ApplicationRunner {
 
-	const string COMMAND_FILE         = 'file';
-	const string COMMAND_CREATE_TABLE = 'create_table';
-	const string COMMAND_DROP_TABLE = 'drop_table';
-	const string COMMAND_DRY_RUN = 'dry_run';
+	const string COMMAND_FILE           = 'file';
+	const string COMMAND_CREATE_TABLE   = 'create_table';
+	const string COMMAND_DROP_TABLE     = 'drop_table';
+	const string COMMAND_DRY_RUN        = 'dry_run';
 	const string COMMAND_HELP           = 'help';
 	const string COMMAND_TRUNCATE_TABLE = 'truncate_table';
 
@@ -69,20 +69,20 @@ class ApplicationRunner {
 	 */
 	protected function initOpts(): void {
 		$shortOpts = implode('', [
-			static::COMMAND_USER . static::TYPE_OPTIONAL,
+			static::COMMAND_USER     . static::TYPE_OPTIONAL,
 			static::COMMAND_PASSWORD . static::TYPE_OPTIONAL,
-			static::COMMAND_HOST . static::TYPE_OPTIONAL,
+			static::COMMAND_HOST     . static::TYPE_OPTIONAL,
 			static::COMMAND_DATABASE . static::TYPE_OPTIONAL,
 		]);
 
 		$this->opts = getopt(
 			$shortOpts,
 			[
-				static::COMMAND_FILE . static::TYPE_OPTIONAL,
-				static::COMMAND_CREATE_TABLE . static::TYPE_OPTIONAL,
-				static::COMMAND_DROP_TABLE . static::TYPE_OPTIONAL,
+				static::COMMAND_FILE           . static::TYPE_OPTIONAL,
+				static::COMMAND_CREATE_TABLE   . static::TYPE_OPTIONAL,
+				static::COMMAND_DROP_TABLE     . static::TYPE_OPTIONAL,
 				static::COMMAND_TRUNCATE_TABLE . static::TYPE_OPTIONAL,
-				static::COMMAND_DRY_RUN . static::TYPE_OPTIONAL,
+				static::COMMAND_DRY_RUN        . static::TYPE_OPTIONAL,
 				static::COMMAND_HELP,
 			]);
 
