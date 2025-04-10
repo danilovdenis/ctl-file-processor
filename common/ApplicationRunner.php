@@ -49,7 +49,7 @@ class ApplicationRunner {
 	 *
 	 * @throws Throwable
 	 */
-	public function run() {
+	public function run(): void {
 		try {
 			$this->initOpts();
 			$this->processCommand();
@@ -67,7 +67,7 @@ class ApplicationRunner {
 	/**
 	 * Initialization options.
 	 */
-	protected function initOpts() {
+	protected function initOpts(): void {
 		$shortOpts = implode('', [
 			static::COMMAND_USER . static::TYPE_OPTIONAL,
 			static::COMMAND_PASSWORD . static::TYPE_OPTIONAL,
@@ -102,7 +102,7 @@ class ApplicationRunner {
 	 *
 	 * @throws Throwable
 	 */
-	protected function processCommand() {
+	protected function processCommand(): void {
 		if (array_key_exists(static::COMMAND_HELP, $this->opts)) {
 			$this->controller->actionHelp();
 
