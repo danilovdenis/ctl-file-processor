@@ -15,21 +15,21 @@ use Throwable;
  */
 class ApplicationRunner {
 
-	const COMMAND_FILE           = 'file';
-	const COMMAND_CREATE_TABLE   = 'create_table';
-	const COMMAND_DROP_TABLE     = 'drop_table';
-	const COMMAND_DRY_RUN        = 'dry_run';
-	const COMMAND_HELP           = 'help';
-	const COMMAND_TRUNCATE_TABLE = 'truncate_table';
+	const string COMMAND_FILE         = 'file';
+	const string COMMAND_CREATE_TABLE = 'create_table';
+	const string COMMAND_DROP_TABLE = 'drop_table';
+	const string COMMAND_DRY_RUN = 'dry_run';
+	const string COMMAND_HELP           = 'help';
+	const string COMMAND_TRUNCATE_TABLE = 'truncate_table';
 
-	const COMMAND_USER     = 'u';
-	const COMMAND_PASSWORD = 'p';
-	const COMMAND_HOST     = 'h';
-	const COMMAND_DATABASE = 'd';
+	const string COMMAND_USER     = 'u';
+	const string COMMAND_PASSWORD = 'p';
+	const string COMMAND_HOST     = 'h';
+	const string COMMAND_DATABASE = 'd';
 
-	const TYPE_OPTIONAL = '::';
+	const string TYPE_OPTIONAL = '::';
 
-	const TABLE_USERS = 'users';
+	const string TABLE_USERS = 'users';
 
 	/** Commands */
 	protected array $opts;

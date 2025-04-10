@@ -48,7 +48,7 @@ class DBConnection {
 	/**
 	 * Close connection.
 	 */
-	public static function close() {
+	public static function close(): void {
 		static::$connection->close();
 	}
 

@@ -9,9 +9,9 @@ namespace common\components\message;
  */
 class Message {
 
-	public const CODE_ERROR   = 0;
-	public const CODE_WARNING = 1;
-	public const CODE_INFO    = 2;
+	public const int CODE_ERROR   = 0;
+	public const int CODE_WARNING = 1;
+	public const int CODE_INFO    = 2;
 
 	/**
 	 * Output message to STDOUT
@@ -19,7 +19,7 @@ class Message {
 	 * @param string   $message
 	 * @param int|null $code
 	 */
-	public static function output(string $message, ?int $code = 0) {
+	public static function output(string $message, ?int $code = 0): void {
 		if (0 === $code) {
 			echo 'ERROR: ' . $message . PHP_EOL;
 

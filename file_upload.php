@@ -1,4 +1,9 @@
 <?php
 require __DIR__ . '/autoloader.php';
 
-(new \common\service\ApplicationRunner())->run();
+try {
+	new \common\service\ApplicationRunner()->run();
+}
+catch (Throwable $e) {
+	throw new Exception($e->getMessage());
+}

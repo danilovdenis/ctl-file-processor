@@ -16,13 +16,6 @@ use Throwable;
  * Options controller.
  */
 class OptionController {
-
-	/** File service  */
-	protected FileService $fileService;
-
-	/** DB service  */
-	protected DbService $dbService;
-
 	/** Config  */
 	protected ConfigDto $config;
 
@@ -30,26 +23,24 @@ class OptionController {
 	 * @param FileService $fileService
 	 * @param DbService   $dbService
 	 */
-	public function __construct(FileService $fileService, DbService $dbService) {
-		$this->fileService = $fileService;
-		$this->dbService   = $dbService;
+	public function __construct(private readonly FileService $fileService, private readonly DbService $dbService) {
 	}
 
 	/**
 	 * @param ConfigDto $configDto
 	 */
-	public function setConfig(ConfigDto $configDto) {
+	public function setConfig(ConfigDto $configDto): void {
 		$this->config = $configDto;
 	}
 
 	/**
 	 * Processing file action.
 	 *
-	 * @param string|false|null $fileName
+	 * @param false|string|null $fileName
 	 *
 	 * @throws Throwable
 	 */
-	public function actionFile($fileName) {
+	public function actionFile(false|string|null $fileName): void {
 		if (!$fileName) {
 			throw new Exception($this->getNotFoundError('File Name'));
 		}
@@ -85,7 +76,7 @@ class OptionController {
 	 *
 	 * @throws Throwable
 	 */
-	public function actionCreateTable() {
+	public function actionCreateTable(): void {
 		if (!$this->config->tableName) {
 			throw new Exception($this->getNotFoundError('Table Name'));
 		}
@@ -114,11 +105,11 @@ class OptionController {
 	/**
 	 * Parse file without insert into database.
 	 *
-	 * @param string|false|null $filename
+	 * @param false|string|null $filename
 	 *
 	 * @throws Throwable
 	 */
-	public function actionDryRun($filename) {
+	public function actionDryRun(false|string|null $filename): void {
 		if (!$filename) {
 			throw new Exception($this->getNotFoundError('File Name'));
 		}
@@ -141,7 +132,7 @@ class OptionController {
 	 * Help information.
 	 * Output information block into STDOUT.
 	 */
-	public function actionHelp() {
+	public function actionHelp(): void {
 		echo PHP_EOL;
 		echo 'USAGE:' . PHP_EOL;
 		echo PHP_EOL;

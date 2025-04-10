@@ -21,7 +21,7 @@ class DbService {
 	/**
 	 * @param DBConnection $connection
 	 */
-	public function connect(DBConnection $connection) {
+	public function connect(DBConnection $connection): void {
 		$this->connection = $connection;
 	}
 
@@ -33,7 +33,7 @@ class DbService {
 	 *
 	 * @throws Throwable
 	 */
-	public function batchInsertUsers(string $tableName, array $data) {
+	public function batchInsertUsers(string $tableName, array $data): void {
 		$this->connection::getInstance()->begin_transaction();
 
 		try {
@@ -80,7 +80,7 @@ class DbService {
 	 *
 	 * @throws Throwable
 	 */
-	public function createTable(string $tableName, array $columns) {
+	public function createTable(string $tableName, array $columns): void {
 		$columnsString = implode(',', $columns);
 
 		$this->connection::getInstance()->query('DROP TABLE IF EXISTS ' . $tableName);
@@ -106,7 +106,7 @@ class DbService {
 	 *
 	 * @throws Throwable
 	 */
-	public function addKeyUnique(string $tableName, string $keyName) {
+	public function addKeyUnique(string $tableName, string $keyName): void {
 		$this->connection::getInstance()->query('
 				ALTER TABLE ' . $tableName . ' ADD UNIQUE unique_' . $keyName . ' (' . $keyName . ');');
 
